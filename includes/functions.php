@@ -342,6 +342,8 @@ function print_book_details_for_sales($sell_order)
 //signup function
 function signup()
 { 
+	global $connection;
+	
 	$_SESSION["errors"]=array();
 	$_SESSION["message"]="";
 	if (isset($_POST['submit'])) //when the submit button is hit
@@ -349,7 +351,7 @@ function signup()
 		$username = mysqli_real_escape_string($connection, trim($_POST["username"])); //trim spaces, save the info
 		$_SESSION["username"]=$username;
 		$password = mysqli_real_escape_string($connection, $_POST["password"]);
-		$confirm_password = mysqli_real_escape_string($connection, trim($_POST["confirm_password"]));
+		$confirm_password = mysqli_real_escape_string($connection, $_POST["confirm_password"]);
 		$grade = $_POST["grade"];
 		$email = mysqli_real_escape_string($connection, trim($_POST["email"]));
 		$code = mysqli_real_escape_string($connection, trim($_POST["code"]));
@@ -357,7 +359,7 @@ function signup()
 
 		foreach($fields_required as $field) //check each field if they are filled
 		{
-			$value = trim($_POST[$field]);
+			$value = $_POST[$field];
 			if (!has_presence($value))//if something isn't there, return text that shows the error(s)
 			{
 				if ($field == "confirm_password") //special case for confirming passwords
@@ -631,7 +633,9 @@ function print_basic_book_info($book_id) //currently only the book name
 		$current_category = $book["category"];
 		$current_subject = $book["subject"];
 		
-		$output = $book["name"];
+		$book_name = $book["name"];
+		
+		$output = $book_name;
 		$output .= " ("."<a href=\"index.php?category=";
 		$output .= urlencode(strtolower($current_category));
 		$output .= "\">";
@@ -643,7 +647,11 @@ function print_basic_book_info($book_id) //currently only the book name
 		$output .= urlencode(strtolower($current_subject));
 		$output .= "\">";
 		$output .= $current_subject;
-		$output .= "</a>)";
+		$output .= "</a>)<br />";
+		if (substr($book_name, 0, 7) == "**NEW**")
+		{
+			$output .= "<h2>NOTE: Since this book is new, there will likely be no sellers.</h2><br />";
+		}
 		echo $output;
 	}/*end if*/
 	/*}*/
@@ -912,6 +920,51 @@ function delete_offer()
 		$query .= "WHERE sell_id = {$sell_id}";
 		$delete = mysqli_query($connection, $query);
 		*/
+		
+		$query = "DELETE FROM messages "; //must remove conversation too
+		$query .= "WHERE sell_id = {$sell_id}";
+		$delete = mysqli_query($connection, $query);
+		
+		redirect_to("sales.php");
+	}
+}
+
+//cancels a purchase if the buyer decides not to purchase a certain book from a certain seller
+function cancel_purchase()
+{
+	if (isset($_POST["cancel"]))
+	{
+		echo "klsdfkjl";
+		global $connection;
+		
+		$sell_id = mysqli_real_escape_string($connection, $_GET["id"]);
+		$buyer_id = mysqli_real_escape_string($connection, $_GET["buyer_id"]);
+		
+		//remove one from the buyers count first
+		$query = "SELECT * ";
+		$query .= "FROM sell ";
+		$query .= "WHERE id = {$sell_id} ";
+		$query .= "LIMIT 1";//read back the row that contains the information of the seller and the book that he/she is selling
+		$sell_set = mysqli_query($connection, $query);
+
+		while ($sell = mysqli_fetch_assoc($sell_set))
+		{
+			$buyers = $sell["buyers"];
+			//this database contains a column called "buyers," which is responsible for holding the # of people who bought this book.
+			//this number is displayed at each book.php page to let buyers know how many people have already purchased each book.
+		}
+
+		$buyers--; //add one buyer
+
+		$query = "UPDATE sell ";//place that update above and store it in the database (yep, all those lines just to subtract 1 to a column..)
+		$query .= "SET buyers = {$buyers} ";
+		$query .= "WHERE id = {$sell_id}";
+		$sell_set = mysqli_query($connection, $query);
+		
+		$query = "DELETE FROM buy "; //remove the purchase order
+		$query .= "WHERE sell_id = {$sell_id} ";
+		$query .= "AND   buyer_id = {$buyer_id}";
+		$delete = mysqli_query($connection, $query);
 		
 		$query = "DELETE FROM messages "; //must remove conversation too
 		$query .= "WHERE sell_id = {$sell_id}";
