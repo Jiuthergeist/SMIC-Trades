@@ -14,7 +14,7 @@
 <html lang="en">
 	<head>
 		<title>Sharks Book Trading</title>		
-	<link href="../public_html/stylesheets/main_style.css" media="all" rel="stylesheet" type="text/css" />
+	<link href="main_style.css" media="all" rel="stylesheet" type="text/css" />
 
 	</head>
 	<body>
