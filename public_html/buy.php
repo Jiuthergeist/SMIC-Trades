@@ -63,7 +63,7 @@
 	<!--text-->
 	
 	<form action="buy.php?id=<?php echo $selling_id; ?>&book=<?php echo $book_id; ?>" method="post">
-		<textarea class="large" rows="10" name="text" value="Enter Message"></textarea>
+		<textarea class="large" rows="10" name="text" placeholder="Enter your message here"></textarea>
 		<input type="submit" name="send" value="Send">
 	</form>
 	

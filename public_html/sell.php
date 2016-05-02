@@ -16,10 +16,10 @@
 	?>
 	</h3>
 	<form action="sell.php?id=<?php echo $book_id; ?>" method="post">
-	<i>Note: Decimals will be truncated.</i>
+	<i>Note: Decimals will be removed.</i>
 	<h3>Your price: <input type="text" name="price" value="" /></h3>
 	<h3>Add a description:</h3>
-	<textarea class="large" rows="10" name="description" value="Enter Description"></textarea>
+	<textarea class="large" rows="10" name="description" placeholder="Enter book condition and other details here"></textarea>
 	<br /><input class="big"type="submit" name="sell" value="Sell" />
 	</form>
 	<?php

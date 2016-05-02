@@ -21,6 +21,8 @@
 		{
 			$output = "<h1 class=\"h1_spacing\">Messages from Purchase:</h1>";
 			
+			$count = 0; //"count" counts the number of purchases the user made
+			
 			$query = "SELECT * ";
 			$query .= "FROM messages ";
 			$query .= "WHERE buyer_id = {$user_id} ";
@@ -28,10 +30,11 @@
 		
 			while ($purchase = mysqli_fetch_assoc($purchase_set))
 			{
+				$count++;
 				$messages_id = $purchase["id"]; //the id under the "messages" database
 				//$book_id = $purchase["book_id"];
 				$sell_id = $purchase["sell_id"]; //the corresponding id under the "sell" database
-				
+			
 				for ($i = 5; $i > 0; $i--)
 				{
 					$speaker_var = "speaker" . $i;
@@ -44,13 +47,13 @@
 						$i = 0;
 					}
 				}
-			
+		
 				$output .= "<a href=\"messages.php?id="; //link to the specific conversation
 				$output .= urlencode($messages_id);
 				//$output .= "&sell=";
 				//$output .= urlencode($sell_id);
 				$output .= "&action=buy\">"; //the user is a buyer here, so this helps make the conversation remember that this person is the buyer
-			
+		
 				$query = "SELECT * "; //use this query to pick up on who is selling the book
 				$query .= "FROM sell ";
 				$query .= "WHERE id = {$sell_id} ";
@@ -58,14 +61,14 @@
 				//$query .= "AND seller_id != {$user_id}";
 				$query .= "ORDER BY sold_to ASC";
 				$sell_set = mysqli_query($connection, $query);
-			
+		
 				while ($sell_order = mysqli_fetch_assoc($sell_set))
 				{
 					$output .= print_book_details_for_sales($sell_order);
 					$output .= "Seller: ";
-				
+			
 					$seller_id = $sell_order["seller_id"]; //the query earlier is responsible for picking up the id of the user selling this book
-				
+			
 					$query = "SELECT * "; //then this query can pick up information on the user
 					$query .= "FROM users ";
 					$query .= "WHERE id = {$seller_id} ";
@@ -81,10 +84,14 @@
 				}
 				$output .= "</a><br />";
 			}
+			
+			if ($count == 0)
+				$output .= "You are currently not purchasing any books. <a href=\"index.php\">Purchase one now!</a>";
 			echo $output;
 
 			//this part is the same as above, except things are flipped around because the user logged in is the seller for these books
 			$output = "<h1 class=\"h1_spacing\">Messages from Selling:</h1>";
+			$count = 0;
 			
 			$query = "SELECT * ";
 			$query .= "FROM messages ";
@@ -93,6 +100,7 @@
 		
 			while ($selling = mysqli_fetch_assoc($selling_set))
 			{
+				$count++;
 				$messages_id = $selling["id"];
 				$sell_id = $selling["sell_id"];
 				//$book_id = $selling["book_id"];
@@ -156,6 +164,8 @@
 				}
 				$output .= "</a><br />";
 			}
+			if ($count == 0)
+				$output .= "You are currently not selling any books. <a href=\"index.php\">Sell one now!</a>";
 			echo $output;
 		}
 		else //checking_message == 1
@@ -195,7 +205,7 @@
 					$query .= "WHERE id = {$buyer_id} ";
 					$output2 .= "selling:</h3>";
 					$output2 .= "<form action=\"messages.php?id={$message_id}&action={$action}\" method=\"post\">";
-					$output2 .= "<input type=\"submit\" name=\"buy\" value=\"Sell to this Buyer\"></form>";
+					$output2 .= "<input type=\"submit\" name=\"buy\" value=\"Sell to this Buyer\"></form><br />";
 				}
 				else //if the user messed with the URL (action), the user will be redirected back to the overview page of all messages
 					redirect_to("messages.php");
@@ -219,7 +229,11 @@
 				$sell_set = mysqli_query($connection, $query);
 				
 				while ($sell_order = mysqli_fetch_assoc($sell_set))
+				{
 					$header_output .= print_book_details_for_sales($sell_order);
+					$header_output .= "<br /><h3>Book Description:</h3>";
+					$header_output .= $sell_order["description"];
+				}
 
 				$buyer_name = "";
 				$buyer_id = $messages["buyer_id"];

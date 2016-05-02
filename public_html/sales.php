@@ -5,12 +5,16 @@
 	
 	check_login(); //makes sure people cannot skip to this page without logging in
 	delete_offer(); //if the user clicks on "delete offer," this function will run
+	cancel_purchase(); //if the user clicks on "cancel purchase," this function will run
 	
 	$user_id = $_SESSION["id"];
 ?>
 <div id="page" style="font-size:16px; font-family: Verdana;">
 	<h1 class="h1_spacing">My Books to Sell:</h1>
-	<?php		
+	<?php
+		$output = "";
+		$count = 0;
+		
 		$query = "SELECT * "; //know which books the user is selling
 		$query .= "FROM sell ";
 		$query .= "WHERE seller_id = {$user_id} ";
@@ -19,8 +23,36 @@
 
 		while ($sell_order = mysqli_fetch_assoc($sell_set))
 		{
+			$count++;
 			$sold_to = $sell_order["sold_to"];
-			$output = print_book_details_for_sales($sell_order);
+			$sell_id = $sell_order["id"];
+						
+			$query = "SELECT * ";
+			$query .= "FROM messages ";
+			$query .= "WHERE id = {$sell_id} ";
+			$query .= "LIMIT 1";
+			$message_set = mysqli_query($connection, $query);
+			
+			while ($message = mysqli_fetch_assoc($message_set))
+			{
+				$output .= "<a href=\"messages.php?id=";
+				$output .= $sell_id;
+				$output .= "&action=";
+				
+				$buyer_id = $message["buyer_id"];
+				$seller_id = $message["seller_id"];
+				
+				if ($buyer_id == $user_id)
+					$output .= "buy";
+				elseif ($seller_id == $user_id)
+					$output .= "sell";
+				
+				$output .= "\">";
+			}
+			
+			$output .= print_book_details_for_sales($sell_order);
+			$output .= "</a>";
+			
 			if ($sold_to == 0)
 			{
 				$output .= "<form action=\"sales.php?id="; //create a delete button that corresponds to the id in the "sell" database
@@ -48,13 +80,17 @@
 				}
 			}
 			$output .= "<br /><br />";
-			echo $output;
-			
-		}		
+		}
+		if ($count == 0)
+			$output .= "You have not sold any books. <a href=\"index.php\">Sell one now!</a>";
+		echo $output;		
 	?>
 	<h1 class="h1_spacing">Purchased Books:</h1>
 	<br />
 	<?php		
+		$count = 0;
+		$output = "";
+		
 		$query = "SELECT * ";
 		$query .= "FROM buy ";
 		$query .= "WHERE buyer_id = {$user_id}";
@@ -63,6 +99,7 @@
 		
 		while ($buy_order = mysqli_fetch_assoc($buy_set)) //pull all the books that the user bought
 		{
+			$count++;
 			$sell_id = $buy_order["sell_id"];
 			
 			$query = "SELECT * ";
@@ -73,15 +110,14 @@
 			
 			while ($sell_order = mysqli_fetch_assoc($sell_set))
 			{
-				$output = "";
 				$sold_to = $sell_order["sold_to"];
 				if ($sold_to != 0)
 				{
-					$output .= "[SOLD TO ";
+					$output .= "<b>[SOLD TO ";
 					if ($user_id == $sold_to)
 						$output .= "YOU";
 					else $output .= "SOMEONE ELSE";
-					$output .= "] ";
+					$output .= "]</b>";
 				}
 				$output .= print_book_details_for_sales($sell_order); //print some book details
 			
@@ -94,13 +130,26 @@
 				$user_set = mysqli_query($connection, $query);
 			
 				while ($user = mysqli_fetch_assoc($user_set))
+				{
 					$output .= "Seller: " . $user["username"] . ", Grade " . $user["grade"];
-				
-				$output .= "<br /><br />";
-				echo $output;
-				
+					if ($sold_to == 0)
+					{
+						$output .= "<form action=\"sales.php?id="; //create a delete button that corresponds to the id in the "sell" database
+						$output .= urlencode($sell_order["id"]);
+						$output .= "&buyer_id=";
+						$output .= $user_id;
+						$output .= "\" method=\"post\">";
+						$output .= "<input type=\"submit\" name=\"cancel\" value=";
+						$output .= "\"Cancel Purchase\">";
+						$output .= "</form>";
+					}
+				}
 			}
 		}	
+		if ($count == 0)
+			$output .= "You have not purchased any books. <a href=\"index.php\">Purchase one now!</a>";
+		$output .= "<br /><br />";
+		echo $output;
 	?>
 </div>
 </body>

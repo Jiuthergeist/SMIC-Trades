@@ -58,7 +58,7 @@
 
 	if (isset($_POST["edit"]))
 	{
-		$output = "An empty field will automatically assume no changes to your current information.<br /><br />";
+		$output = "Empty fields will be ignored.<br /><br />";
 		$output .= "<form action=\"profile.php\" method=\"post\">";
 		$output .= "Name:<br /><input type=\"text\" name=\"username\" value=\"";
 		$output .= $username; 
