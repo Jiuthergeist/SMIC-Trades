@@ -65,13 +65,14 @@
 		// Build query for finding the name
 		if (is_logged_in()) //protect students' names if a random guest (out of SMIC) is browsing
 		{
+			$output = "<h3><i>We strongly recommend you to purchase from only one seller to give others an opportunity to make a purchase.</i></h3>";
 			$query = "SELECT * "; //prepare a query that displays all the sellers of the book
 			$query .= "FROM sell ";
 			$query .= "WHERE book_id = {$book_id}";
 			$seller_set = mysqli_query($connection, $query);
 			confirm_query($seller_set);
 		
-			$output = "<h2>Buy This Book:</h2><h3>";
+			$output .= "<h2>Buy This Book:</h2><h3>";
 			$has_seller = 0; //check to see if there is a seller for the book (0 is false)
 				
 			while ($seller = mysqli_fetch_assoc($seller_set))

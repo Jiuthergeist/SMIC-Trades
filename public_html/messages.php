@@ -82,7 +82,7 @@
 						$output .= $user["grade"];
 					}
 				}
-				$output .= "</a><br />";
+				$output .= "</a><br /><br />";
 			}
 			
 			if ($count == 0)
@@ -103,6 +103,7 @@
 				$count++;
 				$messages_id = $selling["id"];
 				$sell_id = $selling["sell_id"];
+				$buyer_id = $selling["buyer_id"];
 				//$book_id = $selling["book_id"];
 				
 				for ($i = 5; $i > 0; $i--)
@@ -124,6 +125,7 @@
 				//$output .= urlencode($sell_id);
 				$output .= "&action=sell\">";
 			
+				
 				$query = "SELECT * ";
 				$query .= "FROM sell ";
 				$query .= "WHERE id = {$sell_id} ";
@@ -134,35 +136,25 @@
 			
 				while ($sell_order = mysqli_fetch_assoc($sell_set))
 				{
+				
 					$output .= print_book_details_for_sales($sell_order);
 					$output .= "Buyer: ";
 					
-					//$sell_id = $sell_order["id"];
-								
+						
 					$query = "SELECT * ";
-					$query .= "FROM buy ";
-					$query .= "WHERE sell_id = {$sell_id} ";
-					$buy_set = mysqli_query($connection, $query);
+					$query .= "FROM users ";
+					$query .= "WHERE id = {$buyer_id} ";
+					$query .= "LIMIT 1";
+					$user_set = mysqli_query($connection, $query);
 					
-					while ($buy_order = mysqli_fetch_assoc($buy_set))
+					while ($user = mysqli_fetch_assoc($user_set))
 					{
-						$buyer_id = $buy_order["buyer_id"];
-						
-						$query = "SELECT * ";
-						$query .= "FROM users ";
-						$query .= "WHERE id = {$buyer_id} ";
-						$query .= "LIMIT 1";
-						$user_set = mysqli_query($connection, $query);
-						
-						while ($user = mysqli_fetch_assoc($user_set))
-						{
-							$output .= $user["username"];
-							$output .= ", Grade ";
-							$output .= $user["grade"];
-						}
+						$output .= $user["username"];
+						$output .= ", Grade ";
+						$output .= $user["grade"];
 					}
 				}
-				$output .= "</a><br />";
+				$output .= "</a><br /><br />";
 			}
 			if ($count == 0)
 				$output .= "You are currently not selling any books. <a href=\"index.php\">Sell one now!</a>";
@@ -205,7 +197,7 @@
 					$query .= "WHERE id = {$buyer_id} ";
 					$output2 .= "selling:</h3>";
 					$output2 .= "<form action=\"messages.php?id={$message_id}&action={$action}\" method=\"post\">";
-					$output2 .= "<input type=\"submit\" name=\"buy\" value=\"Sell to this Buyer\"></form><br />";
+					$output2 .= "<input type=\"submit\" name=\"sell_to\" value=\"Sell to this Buyer\"></form><br />";
 				}
 				else //if the user messed with the URL (action), the user will be redirected back to the overview page of all messages
 					redirect_to("messages.php");
@@ -281,7 +273,7 @@
 			echo make_field_and_button($messages_id, $action); //the textfield and the correct button (add message or reply) will be made depending on the action
 			add_message($messages_id, $action); //if the user clicks on the button, one of these functions will run
 			reply($messages_id, $action);
-			confirm_purchase($sell_id, $convo_partner_id);
+			delete_messages_after_sell($sell_id, $convo_partner_id);
 		}
 	?>
 </div>

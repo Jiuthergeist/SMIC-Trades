@@ -4,7 +4,7 @@
 	include("../includes/header.php");
 	
 	check_login(); //makes sure people cannot skip to this page without logging in
-	delete_offer(); //if the user clicks on "delete offer," this function will run
+	delete_offer(); //if the user clicks on "cancel offer," this function will run
 	cancel_purchase(); //if the user clicks on "cancel purchase," this function will run
 	
 	$user_id = $_SESSION["id"];
@@ -26,7 +26,8 @@
 			$count++;
 			$sold_to = $sell_order["sold_to"];
 			$sell_id = $sell_order["id"];
-						
+			
+			/*			
 			$query = "SELECT * ";
 			$query .= "FROM messages ";
 			$query .= "WHERE id = {$sell_id} ";
@@ -49,17 +50,29 @@
 				
 				$output .= "\">";
 			}
-			
+			*/
 			$output .= print_book_details_for_sales($sell_order);
-			$output .= "</a>";
+			//$output .= "</a>";
 			
 			if ($sold_to == 0)
 			{
 				$output .= "<form action=\"sales.php?id="; //create a delete button that corresponds to the id in the "sell" database
 				$output .= urlencode($sell_order["id"]);
 				$output .= "\" method=\"post\">";
-				$output .= "<input type=\"submit\" name=\"delete\" value=";
-				$output .= "\"Cancel Offer\">";
+				$output .= "<input type=\"submit\" name=\"delete\" value= \"Cancel Offer\">";
+				/*$output .= "<button onclick=\"confirm_cancel_offer()\">Cancel Offer</button>
+				<script>
+				function confirm_cancel_offer() {
+				    if (confirm(\"Are you sure you want to close this offer? Future buyers will not be able to see this book.\"))
+				        delete_offer(1);
+					else delete_offer(0);
+				}
+				</script>";
+				
+				$output .= "onClick=\"retval = window.confirm('Are you sure you want to close this offer? Future buyers will not be able to see this book.'); 
+				window.status=(retval)?'Yes, close this offer':'No, I haven\'t sold my book yet.'; \">";
+				*/
+
 				$output .= "</form>";
 			}
 			else
@@ -76,10 +89,10 @@
 					$output .= $user["username"];
 					$output .= " (Grade ";
 					$output .= $user["grade"];
-					$output .= ")";
+					$output .= ")<br />";
 				}
 			}
-			$output .= "<br /><br />";
+			$output .= "<br />";
 		}
 		if ($count == 0)
 			$output .= "You have not sold any books. <a href=\"index.php\">Sell one now!</a>";
@@ -119,6 +132,22 @@
 					else $output .= "SOMEONE ELSE";
 					$output .= "]</b>";
 				}
+				else 
+				{
+					$output .= "<a href=\"messages.php?id=";
+					
+					$query = "SELECT * ";
+					$query .= "FROM messages ";
+					$query .= "WHERE sell_id = {$sell_id} ";
+					$query .= "  AND buyer_id = {$user_id} ";
+					$query .= "LIMIT 1";
+					$message_set = mysqli_query($connection, $query);
+					
+					while ($message = mysqli_fetch_assoc($message_set))
+						$output .= $message["id"];
+					
+					$output .= "&action=buy\">";
+				}
 				$output .= print_book_details_for_sales($sell_order); //print some book details
 			
 				$seller_id = $sell_order["seller_id"];
@@ -139,9 +168,9 @@
 						$output .= "&buyer_id=";
 						$output .= $user_id;
 						$output .= "\" method=\"post\">";
-						$output .= "<input type=\"submit\" name=\"cancel\" value=";
+						$output .= "<input type=\"submit\" name=\"cancel\" value= ";
 						$output .= "\"Cancel Purchase\">";
-						$output .= "</form>";
+						$output .= "</form><br />";
 					}
 				}
 			}
