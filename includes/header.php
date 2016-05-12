@@ -20,37 +20,43 @@
 	<body>
 	
 		<navv id="header">
-		<a href="about.php"><h1>SMIC Trades</h1></a>
+			<a href="about.php"><h1>SMIC Trades</h1></a>
 
-		<ul>
-
-		<top class="hover">  
-		
-		<div class="no_underline">
-			<br /><form action="index.php" method="post">
-			<b>ISBN: </b>
-			<input type="text" name="isbn" value="" />&nbsp;
-			<input type="submit" name="search" value="Search" /><br />
-			</form><br />
-			<font color="#FFFFFF" size="1">
-			<?php echo isbn_search(); //for searching the isbn ?>
+		<ul class="header_line">
+			<top class="hover">  
+				<div class="no_underline">
+					<br /><form action="index.php" method="post">
+					<b>ISBN: </b>
+					<input type="text" name="isbn" value="" />&nbsp;
+					<input type="submit" name="search" value="Search" /><br />
+				</form><br />
+				<font color="#FFFFFF" size="1">
+				<?php echo isbn_search(); //for searching the isbn ?>
 			</font>
-		</div>
-			
-		<a href="index.php" class="no_underline">
-
-		<li class="dropdown"> 
-		Books
-		</a></top>
-			<ul class="dropdownmenu">
+			</div>
+		
+					<a href="index.php" class="no_underline">
+						
+	<li class="dropdown"> 
+						Books
+					</a>
+			</top>
+		
+		<ul class="dropdownmenu">
 			<?php 
 			/*db_connection(); /*access mysql*/
 			/*category_dropdownlist() = dropdown menu*/
 			 echo category_dropdownlist(); //produces the dropdown list under "Books" when the mouse hovers over it
 			?>
-			</ul></li>
+			</ul>
+			
+	</li>
+		
+		
 		
 		<top> 
+		
+	<!--other login buttons-->
 		<?php
 			if (is_logged_in())
 			{
@@ -63,6 +69,8 @@
 			}
 		?>
 		</a></top>
+		
+		
 		<ul class="dropdownmenu">
 		<?php
 			if(is_logged_in()) {
@@ -78,6 +86,8 @@
 		?>
 		</ul></li>
 		<top>
+			
+		<!--login logout buttons-->
 		<?php
 			if (is_logged_in())
 				echo "<a href=\"logout.php\" class=\"no_underline\"><li>Logout</li></a>";

@@ -128,7 +128,7 @@ h1.h1_spacing {
 }
 
  #header { 
- 
+ 	clear:both;
 	position:fixed;
 	height: 90px; 
 	
@@ -158,8 +158,8 @@ navv top li{
 font-size:25px;
 font-family:verdana;
 font-weight:bold;
-
-padding:17px;
+margin:0px;
+padding:20px;
 overflow:visible;
 
 /*padding-left:17px;
@@ -194,6 +194,10 @@ visibility:visible;
 position:relative;
 display:inline-block;
 }
+/*
+
+#f4dda5
+*/
 .dropdownmenu{ /*abcd in a vertical line*/
 padding:0;
 margin-top:10px;
