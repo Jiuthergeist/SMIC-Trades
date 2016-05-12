@@ -485,7 +485,7 @@ function validate_password($password, $confirm)
 
 function validate_code($code)
 {
-	if ($code != "asfoihqweoirh") //need to change this code every year
+	if ($code != /*place code here*/) //need to change this code every year
 	{
 		$_SESSION["errors"][$code] = "The code is incorrect.";
 	}
@@ -651,6 +651,11 @@ function print_basic_book_info($book_id) //currently only the book name
 		if (substr($book_name, 0, 7) == "**NEW**")
 		{
 			$output .= "<h2>NOTE: Since this book is new, there will likely be no sellers.</h2><br />";
+		}
+		if (substr($book_name, 0, 33) == "Sadler-Oxford Vocabulary Workshop" || 
+		(substr($book_name, 0, 21) == "Easy Steps to Chinese" && substr($book_name, 24, 8) == "Workbook"))
+		{
+			$output .= "<h2>NOTE: The AA Office requires you to purchase a new book.</h2><br />";
 		}
 		echo $output;
 	}/*end if*/
@@ -900,18 +905,19 @@ function is_seller($sell_id)
 	return false;
 }
 
-//deletes an offer when the seller has successfully sold a book or decides not to sell a book anymore
+//deletes an offer when the seller decides not to sell a book anymore
 function delete_offer()
 {
-	if (isset($_POST["delete"]) || isset($_POST["buy"]))
-	{		
+	if (isset($_POST["delete"]))
+	{	
+		echo "oijdsf";
 		global $connection;
 		
 		$sell_id = mysqli_real_escape_string($connection, $_GET["id"]); //the id in the URL is the id from the "sell" database
 	
 		//the "sell," "buy," and "messages," database all use the "sell_id," so each database can use the "sell_id" to remove all the necessary rows from the database to prevent any empty purchases/conversations
 		
-		/*
+		
 		$query = "DELETE FROM sell ";
 		$query .= "WHERE id = {$sell_id}";
 		$delete = mysqli_query($connection, $query);
@@ -919,7 +925,7 @@ function delete_offer()
 		$query = "DELETE FROM buy "; //must remove the buyers too
 		$query .= "WHERE sell_id = {$sell_id}";
 		$delete = mysqli_query($connection, $query);
-		*/
+		
 		
 		$query = "DELETE FROM messages "; //must remove conversation too
 		$query .= "WHERE sell_id = {$sell_id}";
@@ -1065,19 +1071,30 @@ function make_field_and_button($message_id, $action)
 	return $output;
 }
 
-function confirm_purchase($sell_id, $convo_partner_id)
+function delete_messages_after_sell($sell_id, $convo_partner_id)
 {
-	if (isset($_POST["buy"]))
+	if (isset($_POST["sell_to"]))
 	{
 		global $connection;
+		
+		//echo $sell_id . "<br />";
+		//echo $convo_partner_id;
+		
+		//$sell_id_clean = mysqli_real_escape_string($connection, $_GET["id"]); 
 		
 		$query = "UPDATE sell ";
 		$query .= "SET sold_to = {$convo_partner_id} ";
 		$query .= "WHERE id = {$sell_id} ";
 		$query .= "LIMIT 1";
 		$sell_set = mysqli_query($connection, $query);
-		
-		delete_offer();
+		//confirm_query($sell_set);
+
+		$query = "DELETE FROM messages "; //must remove conversation too
+		$query .= "WHERE sell_id = {$sell_id}";
+		$delete = mysqli_query($connection, $query);
+		//confirm_query($delete);
+
+		redirect_to("sales.php");
 		
 	}
 }
@@ -1157,6 +1174,7 @@ function reply($message_id, $action)
 					$query .= "    message_read = 0 ";
 					$query .= "WHERE id = {$message_id}";
 					$update = mysqli_query($connection, $query);
+					//confirm_query($update);
 					
 					$i = 10; //jump out of the loop (why 10? i don't know :P but it cannot be 6 because of the if-statement below)
 					redirect_to("messages.php");
