@@ -5,7 +5,8 @@
 	
 	check_login(); //makes sure people cannot skip to this page without logging in
 	
-	$sell_id = 0; //initialize variable for use later
+	$sell_id = 0; //initialize variables for use later
+	$book_id = 0;
 	$user_id = $_SESSION["id"]; //user id of the person logged in
 	$checking_message = 0; //boolean variable to see if the user is looking at a specific conversation or not
 	$action = ""; //store the action (buy or sell) to use when checking_message == 1 and for the final printing of the textfield and button
@@ -179,12 +180,16 @@
 			while ($messages = mysqli_fetch_assoc($messages_set))
 			{	
 				$message_id = $messages["id"];
+				$book_id = $messages["book_id"];
 				
 				$output2 = "<h3>You are ";
 				$query = "SELECT * ";
 				$query .= "FROM users ";
 				if ($action == "buy") //if the user is buying the book
 				{
+					if ($user_id != $messages["buyer_id"]) //if the user messes with the action here (the user is actually buying the book but places "sell" in the URL)
+						redirect_to("messages.php");
+					
 					$seller_id = $messages["seller_id"]; //need to know the seller
 					$convo_partner_id = $seller_id;
 					$query .= "WHERE id = {$seller_id} ";
@@ -192,6 +197,9 @@
 				}
 				elseif($action == "sell") //if the user is selling the book
 				{
+					if ($user_id != $messages["seller_id"]) //if the user messes with the action here (the user is actually selling the book but places "buy" in the URL)
+						redirect_to("messages.php");
+						
 					$buyer_id = $messages["buyer_id"]; //need to know the buyer
 					$convo_partner_id = $buyer_id;
 					$query .= "WHERE id = {$buyer_id} ";
@@ -273,7 +281,7 @@
 			echo make_field_and_button($messages_id, $action); //the textfield and the correct button (add message or reply) will be made depending on the action
 			add_message($messages_id, $action); //if the user clicks on the button, one of these functions will run
 			reply($messages_id, $action);
-			delete_messages_after_sell($sell_id, $convo_partner_id);
+			delete_messages_after_sell($sell_id, $user_id, $convo_partner_id, $book_id);
 		}
 	?>
 </div>

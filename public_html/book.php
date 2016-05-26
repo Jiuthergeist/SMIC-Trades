@@ -68,7 +68,8 @@
 			$output = "<h3><i>We strongly recommend you to purchase from only one seller to give others an opportunity to make a purchase.</i></h3>";
 			$query = "SELECT * "; //prepare a query that displays all the sellers of the book
 			$query .= "FROM sell ";
-			$query .= "WHERE book_id = {$book_id}";
+			$query .= "WHERE book_id = {$book_id} ";
+			$query .= "ORDER BY seller_price ASC";
 			$seller_set = mysqli_query($connection, $query);
 			confirm_query($seller_set);
 		

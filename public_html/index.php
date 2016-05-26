@@ -9,9 +9,9 @@
 		</ul> </div> <!--end categories and navigation-->
 		
 		<div id="page"><br /> <!--page of textbooks, each occupies a square in space-->
-		
+		<h3><a href="about.php">About Us</a></h3>
 		<h3><i>There is a known formatting issue with Firefox. Please use a different browser such as Internet Explorer, Google Chrome, or Safari. We're sorry for the inconvenience this has caused.</i></h3>
-		<h2>The middle school booklist for 2016-2017 has been uploaded! Please wait until the school releases the book list for high school.</h2>
+		<h2>THE MIDDLE SCHOOL AND HIGH SCHOOL BOOKLIST FOR 2016-2017 HAS BEEN UPLOADED!</h2>
 		<!--sorting selection should go here-->
 		<?php
 			echo index_header(); //create the buttons of categories and subjects

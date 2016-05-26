@@ -138,7 +138,7 @@
 			$update = mysqli_query($connection, $query);
 			if ($password_ok)
 			{
-				$_SESSION["messages"] = "Your changes have been saved.";
+				$_SESSION["messages"] = "<b>Your changes have been saved.</b>";
 				redirect_to("profile.php");
 			}
 	} //end isset

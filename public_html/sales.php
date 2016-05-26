@@ -6,6 +6,7 @@
 	check_login(); //makes sure people cannot skip to this page without logging in
 	delete_offer(); //if the user clicks on "cancel offer," this function will run
 	cancel_purchase(); //if the user clicks on "cancel purchase," this function will run
+	edit_price();
 	
 	$user_id = $_SESSION["id"];
 ?>
@@ -14,6 +15,10 @@
 	<?php
 		$output = "";
 		$count = 0;
+		
+		if ($_SESSION["messages"] != "")
+			$output .= $_SESSION["messages"] . "<br /><br />";
+		$_SESSION["messages"] = "";
 		
 		$query = "SELECT * "; //know which books the user is selling
 		$query .= "FROM sell ";
@@ -71,8 +76,22 @@
 				
 				$output .= "onClick=\"retval = window.confirm('Are you sure you want to close this offer? Future buyers will not be able to see this book.'); 
 				window.status=(retval)?'Yes, close this offer':'No, I haven\'t sold my book yet.'; \">";
-				*/
-
+				*/	
+				$output .= "</form>";
+				
+				$output .= "<form action=\"sales.php\" method=\"post\">";
+				$output .= "<input type=\"submit\" name=\"edit_price";
+				$output .= $count;
+				$output .= "\" value=\"Edit Price\"></form>";
+				
+				if (isset($_POST["edit_price" . "{$count}"]))
+				{
+					$output .= "<form action=\"sales.php?id="; //create a delete button that corresponds to the id in the "sell" database
+					$output .= urlencode($sell_order["id"]);
+					$output .= "\" method=\"post\">";
+					$output .= "<input type=\"text\" name=\"new_price\" value=\"\">";
+					$output .= "<input type=\"submit\" name=\"confirm_price_change\" value=\"Confirm\">";
+				}
 				$output .= "</form>";
 			}
 			else
@@ -96,6 +115,7 @@
 		}
 		if ($count == 0)
 			$output .= "You have not sold any books. <a href=\"index.php\">Sell one now!</a>";
+			
 		echo $output;		
 	?>
 	<h1 class="h1_spacing">Purchased Books:</h1>
