@@ -12,6 +12,7 @@
 		<h3><a href="about.php">About Us</a></h3>
 		<h3><i>There is a known formatting issue with Firefox. Please use a different browser such as Internet Explorer, Google Chrome, or Safari. We're sorry for the inconvenience this has caused.</i></h3>
 		<h2>THE MIDDLE SCHOOL AND HIGH SCHOOL BOOKLIST FOR 2016-2017 HAS BEEN UPLOADED!</h2>
+		<h3><i>Need help? Feel free to contact <a href="mailto:smiccomputerclub@hotmail.com">smiccomputerclub@hotmail.com</a>, and we will answer your questions as soon as possible!</i></h3>
 		<!--sorting selection should go here-->
 		<?php
 			echo index_header(); //create the buttons of categories and subjects
