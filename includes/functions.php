@@ -186,24 +186,22 @@ function index_header()
 function category_dropdownlist()
 { 
 	global $connection;
-	$subject_output_all="";
+	global $current_category;
+	
+	$output="";
 	$category_set = find_all_categories($connection);
-	$previous_category = ""; //holds previously printed category to prevent printing multiple times
+	$unique_categories = find_unique_categories($category_set);
+	$unique_subjects = null;
 
-	while($category = mysqli_fetch_assoc($category_set))
-	{
-		if ($category["category"] != $previous_category) //make sure this is a new category to print
-		{
-			$cat = $category["category"];
-			$subject_output_all .="<a href=\"index.php?category=";
-			$subject_output_all .= strtolower(urlencode($cat));
-			$subject_output_all .="\"><li>";
-			$subject_output_all .=$cat; 
-			$subject_output_all .="</li></a>";
-			$previous_category = $category["category"];
-		}	
-	} //end while
-	return $subject_output_all;
+	for ($i = 0; $i < count($unique_categories); $i++) {
+		$cat = $unique_categories[$i]; //current category
+		$output .= "<a href=\"index.php?category=";
+		$output .= strtolower(urlencode($cat));
+		$output .= "\"><li>"; //create links
+		$output .= $cat;
+		$output .= "</li></a>"; //highlights the current subject selected	
+	}
+	return $output;
 	
 }
 //selects books belonging to a category to be printed
@@ -227,19 +225,32 @@ function index_body()
 			$ret .= "<a href=\"index.php?category=grade+11&subject=english\">";
 			$ret .= "here";
 			$ret .= "</a>.</h3>";
+			$ret .= "<h3>Are you in AP English Literature? Find your books ";
+			$ret .= "<a href=\"index.php?category=grade+12&subject=english\">";
+			$ret .= "here";
+			$ret .= "</a>.</h3>";
 		}
 		$query .= "WHERE category = '{$current_category}' ";
 		//place the category into the query
-		if ($current_subject) //if there is a selected subject
+		if ($current_category == "Grade 10")
+		{
+			$ret .= "<h3>Purchase Readings for Writers (Acc) ";
+			$ret .= "<a href=\"book.php?id=41\">";
+			$ret .= "here";
+			$ret .= "</a>.</h3>";
+		}
+		
+		if ($current_category == "Foreign Language")
+		{
+			$ret .= "<h3>Are you in AP Chinese? Find your books ";
+			$ret .= "<a href=\"index.php?category=ap&subject=chinese\">";
+			$ret .= "here";
+			$ret .= "</a>.</h3>";
+		}
+		
+		if($current_subject)
 		{
 			$query .= "AND subject = '{$current_subject}' "; //add the subject into the query along with the category
-			if ($current_subject == "US History")//special case for APUSH
-			{
-				$ret .= "<h3>Purchase ";
-				$ret .= "<a href=\"book.php?id=85\">"; //if the id of this book changes, be sure to change this id
-				$ret .= "The Narrative of the Life of Frederick Douglass: An American Slave";
-				$ret .= "</a></h3>";
-			}
 		}
 	} //end if current category
 
@@ -485,7 +496,7 @@ function validate_password($password, $confirm)
 
 function validate_code($code)
 {
-	if ($code != /*place code here*/) //need to change this code every year
+	if ($code != "spsharks2016china") //need to change this code every year
 	{
 		$_SESSION["errors"][$code] = "The code is incorrect.";
 	}
@@ -653,7 +664,8 @@ function print_basic_book_info($book_id) //currently only the book name
 			$output .= "<h2>NOTE: Since this book is new, there will likely be no sellers.</h2><br />";
 		}
 		if (substr($book_name, 0, 33) == "Sadler-Oxford Vocabulary Workshop" || 
-		(substr($book_name, 0, 21) == "Easy Steps to Chinese" && substr($book_name, 24, 8) == "Workbook"))
+		(substr($book_name, 0, 21) == "Easy Steps to Chinese" && substr($book_name, 24, 8) == "Workbook") ||
+		(substr($book_name, 26, 6) == "Cahier") || (substr($book_name, 27, 8) == "Cuaderno"))
 		{
 			$output .= "<h2>NOTE: The AA Office requires you to purchase a new book.</h2><br />";
 		}
@@ -840,7 +852,7 @@ function sell_book()
 			$book_id = (int)mysqli_real_escape_string($connection, $_GET["id"]);
 			$query = "INSERT INTO sell (book_id, seller_id, seller_price, buyers, description, sold_to) ";
 			$query .= "VALUES ({$book_id}, {$id}, {$price}, 0, '{$description}', 0)";
-		
+
 			$result = mysqli_query($connection, $query);
 			redirect_to("index.php");
 			return "";//allows a return of text if the price was invalid (below)
@@ -910,7 +922,6 @@ function delete_offer()
 {
 	if (isset($_POST["delete"]))
 	{	
-		echo "oijdsf";
 		global $connection;
 		
 		$sell_id = mysqli_real_escape_string($connection, $_GET["id"]); //the id in the URL is the id from the "sell" database
@@ -935,12 +946,41 @@ function delete_offer()
 	}
 }
 
+//allows the seller to change the price of a book
+function edit_price()
+{
+	if (isset($_POST["confirm_price_change"]))
+	{
+		global $connection;
+		
+		$sell_id = mysqli_real_escape_string($connection, $_GET["id"]); //the id in the URL is the id from the "sell" database
+		$new_price = check_price($_POST["new_price"]);
+
+		if ($new_price > 0)
+		{
+			$query = "UPDATE sell ";
+			$query .= "SET seller_price = {$new_price} ";
+			$query .= "WHERE id = {$sell_id} ";
+			$query .= "LIMIT 1";
+
+			$result = mysqli_query($connection, $query);
+			confirm_query($result);
+			$_SESSION["messages"] = "<b>Your change has been saved.</b>";
+			redirect_to("sales.php");
+		}
+		else
+		{
+			$_SESSION["messages"] = "<b>The price you entered was invalid. Please try again.</b>";
+			redirect_to("sales.php");
+		}		
+	}
+}
+
 //cancels a purchase if the buyer decides not to purchase a certain book from a certain seller
 function cancel_purchase()
 {
 	if (isset($_POST["cancel"]))
 	{
-		echo "klsdfkjl";
 		global $connection;
 		
 		$sell_id = mysqli_real_escape_string($connection, $_GET["id"]);
@@ -1071,7 +1111,7 @@ function make_field_and_button($message_id, $action)
 	return $output;
 }
 
-function delete_messages_after_sell($sell_id, $convo_partner_id)
+function delete_messages_after_sell($sell_id, $user_id, $convo_partner_id, $book_id)
 {
 	if (isset($_POST["sell_to"]))
 	{
@@ -1090,9 +1130,12 @@ function delete_messages_after_sell($sell_id, $convo_partner_id)
 		//confirm_query($sell_set);
 
 		$query = "DELETE FROM messages "; //must remove conversation too
-		$query .= "WHERE sell_id = {$sell_id}";
+		$query .= "WHERE sell_id = {$sell_id} ";
+		$query .= "AND   seller_id = {$user_id} ";
+		$query .= "AND   buyer_id NOT IN ({$convo_partner_id}) ";
+		$query .= "AND   book_id = {$book_id}";
 		$delete = mysqli_query($connection, $query);
-		//confirm_query($delete);
+		confirm_query($delete);
 
 		redirect_to("sales.php");
 		

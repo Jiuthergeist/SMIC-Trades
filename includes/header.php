@@ -14,13 +14,13 @@
 <html lang="en">
 	<head>
 		<title>Sharks Book Trading</title>		
-	<link href="main_style.css" media="all" rel="stylesheet" type="text/css" />
+	<link href="../includes/main_style.css" media="all" rel="stylesheet" type="text/css" />
 
 	</head>
 	<body>
 	
 		<navv id="header">
-			<a href="about.php"><h1>SMIC Trades</h1></a>
+			<a href="index.php"><h1>SMIC Trades</h1></a>
 
 		<ul class="header_line">
 			<top class="hover">  
@@ -54,7 +54,7 @@
 		
 		
 		
-		<top> 
+		<top class="hover"> 
 		
 	<!--other login buttons-->
 		<?php
@@ -85,14 +85,25 @@
 			}
 		?>
 		</ul></li>
-		<top>
+		<top class="hover">
 			
 		<!--login logout buttons-->
 		<?php
+		$output = "";
 			if (is_logged_in())
-				echo "<a href=\"logout.php\" class=\"no_underline\"><li>Logout</li></a>";
-			else 
-				echo "<a href=\"login.php\" class=\"no_underline\"><li>Login</li></a>"; 
+				$output .= "<a href=\"logout.php\" class=\"no_underline\"><li>Logout</li></a>";
+			else
+			{
+				//echo "<top>";
+				$output .= "<a href=\"login.php\" class=\"no_underline\">"; 
+				$output .= "<li class=\"dropdown\">";
+				$output .= "Login";
+				$output .= "</a></top>";
+				$output .= "<ul class=\"dropdownmenu\">";
+				$output .= "<a href=\"signup.php\"><li>Register</li></a>";
+				$output .= "</ul></li>";
+			}
+		echo $output;
 		/* quick login bar: future development
 		$log ="Name: <input type=\"text\" name=\"username\" value=\"";
 		if(isset($_SESSION["username"]))
