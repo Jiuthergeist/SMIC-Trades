@@ -246,6 +246,10 @@ function index_body()
 			$ret .= "<a href=\"index.php?category=ap&subject=chinese\">";
 			$ret .= "here";
 			$ret .= "</a>.</h3>";
+			$ret .= "<h3>Are you in AP Spanish? Find your books ";
+			$ret .= "<a href=\"index.php?category=ap&subject=spanish\">";
+			$ret .= "here";
+			$ret .= "</a>.</h3>";
 		}
 		
 		if($current_subject)
