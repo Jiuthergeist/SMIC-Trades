@@ -15,9 +15,9 @@ function db_connection()
 
 	//defining constants (these never vary) for the connection
 	define("DB_SERVER", "127.0.0.1"); //IP address of the website: 107.180.50.184 (when developing on localhost: 127.0.0.1)
-	define("DB_USER", "smic_admin"); //must be consistent to the database you make
-	define("DB_PASS", "sharks2015");
-	define("DB_NAME", "sharks_book_trading");
+	define("DB_USER", ""); //must be consistent to the database you make
+	define("DB_PASS", "");
+	define("DB_NAME", "");
 
 	$connection = mysqli_connect(DB_SERVER, DB_USER, DB_PASS, DB_NAME); //connection to database
 
